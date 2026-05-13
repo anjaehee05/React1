@@ -2,6 +2,89 @@
 
 # 202430318 안재희
 
+<span style="font-size: 2em; font-weight: bold;">- 11주차</span>
+
+- 실습에서는 아직 Hook을 학습하지 않아 DOM에 직접 접근했지만, React에서는 DOM에 직접 접근하는 것을 권장하지 않음.
+- 모듈의 이름은 camelCase를 사용함.
+- CSS Moudule을 사용하면 별도의 컴포넌트 디렉토리를 만들어 관리해 주는 것이 좋음
+
+```jsx
+import style from "./Bubble/Bubble.module.css";
+
+export default function Bubble() {
+  return (
+    <>
+      <h1 className={style.title}>Bubble</h1>
+      <nav className={style.navBar} onClick={() => alert("메뉴바 클릭")}>
+        <button className={style.button} onClick={() => alert("버튼1")}>
+          버튼1
+        </button>
+        <button className={style.button} onClick={() => alert("버튼2")}>
+          버튼2
+        </button>
+      </nav>
+    </>
+  );
+}
+```
+
+### 이벤트 전파의 중지
+
+- 이벤트 핸들러는 이벤트 오브젝트를 유일한 매개변수로 사용
+- 이벤트 오브젝트는 이벤트의 정보를 읽어 들이는데 사용할 수 있음
+- 또한 이벤트 오브젝트가 전파를 멈출 수 있게 함
+
+```jsx
+function Button({ onClick, children }) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+```
+
+#### 버튼 클릭하면 나오는 절차
+
+- React가 `<button>`에 전달된 onClick핸들러를 호출
+- Button 컴포넌트에 정의된 해당 핸들러는 다음을 수행
+  - e.stopPropagation()을 호출하여 이벤트가 더 이상 bubbling 되지 않도록 방지
+  - Bubble 컴포넌트가 prop으로 전달해 준 onClick함수를 호출
+- Bubble 컴포넌트에서 정의돈 onCLick 이벤트 핸들러 함수가 버튼의 alert를 표시
+- 전파가 중단 되었기 때문에 부모인 `<div>`의 onClick은 실행되지 않음
+
+#### 브라우저 이벤트 기본 동작 방지하기
+
+- 브라우저 이벤트 중에서는 자신만의 기본 동작을 갖고 있는 것이 있다
+- 예를 들면 `<from>`을 제출하는 이벤트인 onSubmit 이벤트는 `<from>` 내부의 버튼을 클릭할 때 페이지 전체를 리로드하는 것을 기본 동작으로 함
+
+#### e.stopPropagation()와 e.pereventDefault()
+
+- 전파를 중지하는 데는 둘 다 유용하지만, 전혀 다른 기능을 가지고 있음
+- e.stopPropagation()은 이벤트 핸들러가 상위 태그에서 실행되지 않도록 멈추는 기능을 함
+- e.pereventDefault()는 브라우저 기본 동작을 갖고 있는 일부 이벤트가 해당 기본 동작을 실행하지 않도록 방지하는 기능을 함
+- 이벤트 핸들러는 사이드 이펙트를 위한 최고의 위치
+
+#### State의 개념과 useState
+
+- State는 컴포넌트의 기억장소임
+- 컴포넌트는 상호 작용의 결과로 화면의 내용을 변경해야 하는 경우가 많음
+- 컴포넌트는 현재 입력 값, 현재 이미지 등 상태와 같은 것들을 어딘 가에 기억햐야 함
+- React는 이런 종류의 컴포넌트별 메모리를 state라고 부름
+
+
+
+---
+
+<span style="font-size: 2em; font-weight: bold;">- 10주차</span>
+
+- 병가
+
 <span style="font-size: 2em; font-weight: bold;">- 9주차</span>
 
 ## Render 트리
