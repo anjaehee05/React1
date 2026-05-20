@@ -2,7 +2,61 @@
 
 # 202430318 안재희
 
-<span style="font-size: 2em; font-weight: bold;">- 11주차</span>
+<span style="font-size: 2em; font-weight: bold;">- 12주차</span>
+
+```jsx
+import { slide } from "./images";
+
+export const galleryImages = [
+  {
+    name: "Slide 1",
+    artist: "Artist 1",
+    description: "Placeholder image for slide 1",
+    url: "https://placeholder.co/600x400?text=slide1",
+    alt: "Slide 1",
+  },
+  {
+    name: "Slide 2",
+    artist: "Artist 2",
+    description: "Placeholder image for slide 2",
+    url: "https://placeholder.co/600x400?text=slide2",
+    alt: "Slide 2",
+  },
+  {
+    name: "Slide 3",
+    artist: "Artist 3",
+    description: "Placeholder image for slide 3",
+    url: "https://placeholder.co/600x400?text=slide3",
+    alt: "Slide 3",
+  },
+  {
+    name: "Slide 4",
+    artist: "Artist 4",
+    description: "Placeholder image for slide 4",
+    url: slide.slider1,
+    alt: "Slide 4",
+  },
+  {
+    name: "Slide 5",
+    artist: "Artist 5",
+    description: "Placeholder image for slide 5",
+    url: slide.slider2,
+    alt: "Slide 5",
+  },
+];
+```
+
+#### 실습
+
+- handleClick 이벤트 핸들러는 컴포넌트 스코프의 지역 변수 index를 업데이트 하고 있음
+- index가 변해도 화면이 변하지 않는 이유는 두가지가 있음
+  - 지역 변수는 렌더링과 렌더링 사이의 변화가 유지되지 않음. React는 이 컴포넌트 변수에 대한 변경 사항은 고려하지 않고 다시 처음부터 렌더링 함
+  - 지역 변수에 변화가 있어도 React는 새로운 데이터로 컴포넌트를 다시 렌더링 해야 한다는 것을 인식하지 못함. 즉 버튼 클릭으로 index가 1로 변경되어도, React는 index이 초기값 0을 적용하기 때문
+- 컴포넌트를 새로운 데이터로 업데이트하기 위해선 다음 두 가지가 필요
+  - 렌더링과 렌더링 사이에서 현재 데이터를 유지함
+  - React가 변경된 새로운 데이터로 컴포넌트를 렌더링하도록 함
+  - 이 두가지를 만족하기 위해서는 useState Hook을 사용해야 함
+    <span style="font-size: 2em; font-weight: bold;">- 11주차</span>
 
 - 실습에서는 아직 Hook을 학습하지 않아 DOM에 직접 접근했지만, React에서는 DOM에 직접 접근하는 것을 권장하지 않음.
 - 모듈의 이름은 camelCase를 사용함.
@@ -77,7 +131,11 @@ function Button({ onClick, children }) {
 - 컴포넌트는 현재 입력 값, 현재 이미지 등 상태와 같은 것들을 어딘 가에 기억햐야 함
 - React는 이런 종류의 컴포넌트별 메모리를 state라고 부름
 
+#### 로컬 변수에 컴포넌트 상태 저장
 
+- 로컬 이미지를 호출하려면 각각의 이미지를 import해야 함
+- 복잡한 코드를 단순화하는 방법은 index파일을 만드는 것
+  - 복잡한 코드는 모두 index 파일에서 처리하고, 이미지를 사용하는 컴포넌트는 가독성을 높이는 방법
 
 ---
 
