@@ -2,6 +2,135 @@
 
 # 202430318 안재희
 
+<span style="font-size: 2em; font-weight: bold;">- 13주차</span>
+
+### React가 state를 강조하는 이유
+
+- React의 핵심 철학 자체가 state 기반 UI이기 때문
+- React의 렌더링 모델 대부분이 state로 설명되기 떄문
+- 다른 Hook들도 결국 state 문제를 해결하기 위한 도구들
+- React 팀이 "DOM 직접 조작" 보다 "상태 기반 사고"를 가장 중요하게 보기 떄문
+- Effect 같은 것은 핵심 모델이 아니라 예외 처리에 가깝다
+
+-useState를 배우면 동시에 :
+
+- 렌더링 / 제렌더링 / 스냅샷 등 같은 개념들이 연결되기 시작
+- 반대로 useEffect 같은 것은 사실 React의 "핵심 철학"이라기보다 외부 시스템과 동기화하기 위한 예외 처리 장치에 가까움
+- 따라서 공식문서에서도 Esxape Hathch에 가까움
+
+### State Hook의 동작 원리 -State Hook
+
+- React에서는 useState와 같은 "use"로 시작하는 모든 함수를 Hook이라고함
+- Hook은 React가 오직 렌더링 중일 때만 사용할 수 있는 특별한 함수
+- Hook을 사용하면 다양한 React 기능을 "연결"할 수 있음
+- use State는 React에서는 제공하는 여러가지 Hook 중 하나임
+- Hook은 함수의 형식을 취하고 있지만 "컴포넌트가 어떤 기능을 필요로 하는지 React에게 자신의 요구사항을 알려주는 선언문"으로 이해하는 것이 좋음
+- useState를 호출하는 것은, React에 이 컴포넌트가 무언가를 기억하기를 원한다고 말하는 것
+
+```jsx
+const [index, setIndex] = useState(0);
+```
+
+- 컴포넌트가 초기 렌더링을 함
+- index의 초기값으로 useState를 사용해 0이 전달되었기 때문에 [0,setIndex]를 반환함
+  - React는 0을 최신 state 값으로 기억
+- 사용자가 버튼을 클릭하면 setIndex(index+1)이 호출함
+- React는 여전히 useState(0)를 보고 있지만, index가 1로 설정된 것을 기억하고 있기 때문에
+- 버튼을 클릭할 때 마다 이와 같은 동작이 반복
+
+### State Hook의 동작원리 - 여러 개의 state를 사용하기
+
+- 하나의 컴포넌트에서 사용할 수 있는 state 변수의 개수에는 제한이 없으며, 원하는 타입의 state 변수를 가질 수 있음
+- 예시에서는 숫자 타입 index와 블리언 타입의 more라는 두 개의 state 변수를 가지고 있음
+
+```jsx
+export default function Carousel() {
+  const [index,setIndex] = useState(0);
+  const [more,setMore] = useState(false);
+  ...
+}
+```
+
+- 하나의 컴포넌트에 두개 이상의 state 변수를 사용할 때가 있음
+- 이런 경우 변수들이 함께 변경해야 하는 경우가 자주 발생한다면, 변수는 하나로 합치는 것이 더 좋을 수도 있음
+- 현재 Carousel 컴포넌트는 description을 비롯한 모든 데이터를 출력하고 있음
+- 여기서 description 부분을 원하는 경우에만 보이도록 하려면 어떻게 해야 할까?
+  - 토글 버튼을 추가하고 description이 보이거나 안 보일 수 있도록 제어하면 됨
+  - 그리고 토글의 상태를 기억하도록 state를 추가함
+  - 실습을 통해 토글 버튼을 추가해 봄
+
+```jsx
+export default function Carousel() {
+  function handlePrevious() {
+    setIndex(index - 1);
+  }
+
+  function handleMoreClick() {
+    setMore(!more);
+  }
+
+  let slide = galleryImages[index];
+
+  return (
+    <section className={styles.wrapper}>
+      <h2>
+        <i>{slide.name}</i>
+        by {slide.artist}
+      </h2>
+      <h3>
+        ({index + 1} of {galleryImages.length})
+      </h3>
+      <img src={slide.url} alt={slide.alt} />
+      {/* <p>{slide.description}</p> */}
+      <p>
+        <button onClick={handlePrevious} className={styles.button}>
+          Previous
+        </button>
+        <button onClick={handleNext} className={styles.button}>
+          Next
+        </button>
+      </p>
+      <button onClick={handleMoreClick}>
+        {more ? "Hide" : "Show"} description
+      </button>
+      {more && <p>{slide.description}</p>}
+    </section>
+  );
+}
+```
+
+### 렌더링 과정의 3단계
+
+- React는 컴포넌트 화면에 표시되기 전에 렌더링 과정을 거치게 됨
+- 렌더링이 되는 프로세스를 이해하면 코드가 어떻게 실행되는지 이해하는데 도움이 됨
+- React의 렌더링 프로세스는 렌더링 트리거, 컴포넌트 렌더링, DOM 커밋 등 3단계로 진행됨
+
+1단계 : 렌더링 트리거(Rendering Trigger)
+
+- 컴포넌트 렌더링이 일어나는 이유는 2가지
+  1. 컴포넌트의 초기 렌더링인 경우
+  2. 컴포넌트의 state가 업데이트된 경우
+
+2단계 : React 컴포넌트 렌더링
+
+- 1단계인 "렌더링 트리거" 직후 React는 컴포넌트를 호출해서 화면에 표시할 내용을 파악함
+- 초기 렌더링에서 React는 루트 컴포넌트를 호출함
+- 초기 렌더링 이후 React는 state 업데이트가 일어나면 렌더링을 촉발시킨 컴포넌트를 호출함
+
+3단계 : React가 DOM에 변경사항을 커밋
+
+- React는 컴포넌트를 렌더링(호출)한 후에 DOM을 수정
+- 초기 렌더링의 경우는 appendChild() DOM API를 사용해서, 생성한 모든 DOM 노드를 화면에 표시함
+- 리렌더링의 경우는 최신 렌더링의 출력과 일치하도록 DOM을 변경하기 위해 필요한 최소한의 작업을 적용함
+
+### 스냅샷처럼 동작하는 State
+
+- State의 변수는 읽고 쓸 수 있는 일반 자바스크립트 변수처럼 보일 수 있음
+- state 변수를 set함수로 업데이트해도 이미 가지고 있는 state 변수는 변경되지 않고, 대신 리렌더링이 촉발(트리거) 됨
+- 컴포넌트의 state에서는 set함수의 호출이 트리거로 적용하여 렌더링이 이루어짐
+
+---
+
 <span style="font-size: 2em; font-weight: bold;">- 12주차</span>
 
 ```jsx
@@ -56,6 +185,7 @@ export const galleryImages = [
   - 렌더링과 렌더링 사이에서 현재 데이터를 유지함
   - React가 변경된 새로운 데이터로 컴포넌트를 렌더링하도록 함
   - 이 두가지를 만족하기 위해서는 useState Hook을 사용해야 함
+
     <span style="font-size: 2em; font-weight: bold;">- 11주차</span>
 
 - 실습에서는 아직 Hook을 학습하지 않아 DOM에 직접 접근했지만, React에서는 DOM에 직접 접근하는 것을 권장하지 않음.
