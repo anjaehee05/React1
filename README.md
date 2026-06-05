@@ -2,6 +2,138 @@
 
 # 202430318 안재희
 
+<span style="font-size: 2em; font-weight: bold;">- 14주차</span>
+
+```jsx
+import { useState } from "react";
+
+export default function BtnClick() {
+  const [number, setNumber] = useState(0);
+
+  function handleIncrease3() {
+    setNumber(number + 1);
+    setNumber(number + 1);
+    setNumber(number + 1);
+  }
+
+  function handleIncrease5() {
+    setNumber(number + 5);
+    alert(number);
+  }
+
+  function handleTimer() {
+    setNumber(number + 5);
+    setTimeout(() => {
+      alert(number);
+    }, 1000);
+  }
+
+  return (
+    <>
+      <h1>{number}</h1>
+      <button onClick={handleIncrease3}>+3</button>&nbsp;
+      <button onClick={handleIncrease5}>+5</button>&nbsp;
+      <button onClick={handleTimer}>Timer</button>
+    </>
+  );
+}
+```
+
+#### 시간 경과에 따른 State
+
+- 만일 클릭 핸들러가 다음과 같다면 버튼을 클릭하면 alert창에 뭐가 표시될까?
+- 보통은 "0" 을 표시한다고 추측할 수 있다
+- setNumber(0+5)/alert(0)
+
+#### 실습
+
+- React에 저장된 state는 alert창이 실행될 때 변경될 수 있음
+- 그러나 사용자가 상호작용한 시점에 이전에 저장되어 있던 state 스냅샷을 사용함
+- 이것은 이전의 스냅샷이 저장되는 순간 이미 예약된 작업임
+- 이벤트 핸들러의 코드가 비동식이라도 랜더링하는 동안 state 변수 값은 절대 변경되지 않음
+- 해당 렌더링의 onClick 내에서, setNumber(number+5)가 호출된 후에도 number이 값은 계속 0
+
+#### React state 업데이트의 배치처리
+
+- set함수로 state 변수를 저장하면 새로운 렌더링이 큐에 들어간다
+- 그러나 경우에 따라서 렌더링을 큐에 넣기 전에, state 변수 값에 몇 가지 작업을 수행하고 싶을 때도 있음
+- 이런 경우를 대비해서 React가 state 업데이트를 어떻게 배치처리(batches,일괄처리)하는지를 이해하는 것이 도움이 됨
+- 각 렌더링이 state 값은 고정되어 있음
+- 따라서 setNumber(number+1)을 계속 호출한다 하더라도 number 값은 항상 0이다
+
+#### React state 업데이트의 배치처리
+
+- 그러나 React 이벤트 핸들러의 모든 코드가 실행될 때까지 state를 업데이트 하지 않고 대기함
+- 따라서 setNumber() 호출이 모두 완료된 이후에만 리렌더링이 일어남
+- 여기서 렌더링의 의미를 화면에 표기되는 바와 같은 렌더링은 계산하는 단계
+  - "렌더링 과정의 3단계"에서 설명한 바와 같이 렌더링은 계산하는 단계
+- React는 이와 같은 프로세스로 동작하기 때문에 불필요한 많은 트리거의 발생 없이 복수의 state변수를 업데이트할 수 있게 됨
+- 이 프로세스를 배칭(batching)이라함
+
+```jsx
+import { useState } from "react";
+
+export default function BtnClick() {
+  const [number, setNumber] = useState(0);
+
+  function handleIncrease3() {
+    setNumber((n) => n + 1);
+    console.log(number);
+    setNumber((n) => n + 1);
+    console.log(number);
+    setNumber((n) => n + 1);
+    console.log(number);
+  }
+
+  function handleIncrease5() {
+    setNumber(number + 5);
+    console.log(number);
+    alert(number);
+    console.log(number);
+  }
+
+  function handleTimer() {
+    setNumber(number + 5);
+    setTimeout(() => {
+      alert(number);
+    }, 3000);
+  }
+
+  return (
+    <>
+      <h1>{number}</h1>
+      <button onClick={handleIncrease3}>+3</button>&nbsp;
+      <button onClick={handleIncrease5}>+5</button>&nbsp;
+      <button onClick={handleTimer}>Timer</button>
+    </>
+  );
+}
+```
+
+- 여기서 n=>n+1은 업데이트 함수라고 부름
+- 이 업데이트 함수를 set함수에 전달할 때 React는 다음과 같이 동작함
+- React는 이벤트 핸들러의 다른 코드가 모두 실행된 후에 이 함수가 처리되도록 큐에 넣음
+- React는 큐를 순환하며 렌더링을 진행되고, 최종 업데이트된 state를 제공함
+- 이렇게 저장된 새로운 state는 다음 렌더링에 사용됨
+- consol에서는 3개의 0이 출력됨. 초기값을 출력하기 때문
+
+#### [Note] 화살표 함수의 축약
+
+- setNumber(n=>n+1)의 n=>n+1는 화살표 함수가 축약된 표현
+- 화살표 함수 전체를 표시하면 (n) => {return n +1;}와 같이 작성되는 것
+- 여기서 매개변수가 하나면 소괄호()를 생갹할 수 있음
+- 그리고 실행문이 하나이고, return만 하는 경우 retrun 키워드와 중괄호{}를 생략할 수 있음
+
+#### [Note] number를 n으로 사용한 이유
+
+- state변수로 선언된 number대신 set함수에서 n으로 사용하는 것은 둘을 구분하기 위한 것
+- number변수는 랜더링 후 최종적으로 결정된 값을 저장하는 반면, n은 업데이터 함수 내에서 지역적으로 사용되는 것
+- 이렇게 구분하여 사용하면 가독성에도 유리함
+- 물론 n이 아닌 number를 그대로 사용해도 상관없지만 react에서는 구분하여 사용할 것을 권장
+- React에서 권장하는 업데이터 함수의 명명규칙은 해당 state 변수의 첫 글자로 지정하는 것
+
+---
+
 <span style="font-size: 2em; font-weight: bold;">- 13주차</span>
 
 ### React가 state를 강조하는 이유
